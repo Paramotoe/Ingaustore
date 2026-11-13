@@ -65,7 +65,7 @@ export default function NewProductPage() {
       fd.append("signature", s.signature);
       fd.append("folder", s.folder);
       fd.append("public_id", s.publicId);
-      fd.append("eager", s.eager);
+      fd.append("transformation", s.transformation);
 
       const upRes = await fetch(`https://api.cloudinary.com/v1_1/${s.cloudName}/image/upload`, { method: "POST", body: fd });
       const upJson = await upRes.json();

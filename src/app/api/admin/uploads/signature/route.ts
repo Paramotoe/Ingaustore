@@ -29,13 +29,13 @@ export async function POST(req: Request) {
   const timestamp = Math.round(Date.now() / 1000);
   const folder = "ingaustore/products";
   const publicId = crypto.randomUUID();
-  const eager = "w_1600,c_limit,q_auto,f_webp";
+  const transformation = "c_limit,w_1600,q_auto,f_webp";
 
   const paramsToSign: Record<string, string> = {
     timestamp: String(timestamp),
     folder,
     public_id: publicId,
-    eager,
+    transformation,
   };
   const signature = cloudinary.utils.api_sign_request(paramsToSign, process.env.CLOUDINARY_API_SECRET!);
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       signature,
       folder,
       publicId,
-      eager,
+      transformation,
     },
   });
 }

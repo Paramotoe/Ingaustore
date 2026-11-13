@@ -24,7 +24,19 @@
 - Delete category: PASS (200).
 - Duplikat kategori: PASS (409).
 - Katalog publik dari DB nyata: PASS (0 produk → empty state, bukan demo).
+- Signed upload Cloudinary (signature + upload + verify): PASS (verify 201, format webp, 400x400).
+- Upload invalid (svg): PASS (400).
+- Upload tanpa session: PASS (401).
+- Cleanup aset Cloudinary: PASS (destroyed).
 - Data test dibersihkan: DB kembali 0 produk, 0 kategori, 1 admin, 0 cleanup jobs.
+
+### Belum Diuji (membutuhkan deployment Netlify)
+- Koneksi Neon dari runtime Netlify: BELUM DIUJI.
+- Signed upload dari browser (UI): BELUM DIUJI.
+- Pengurutan/penggantian/penghapusan foto via UI: BELUM DIUJI.
+- Pembaruan cache pada deployment: BELUM DIUJI.
+- Cleanup orphan & retry penghapusan: BELUM DIUJI.
+- Responsive & 4 tema pada deployment: BELUM DIUJI.
 
 ### Belum Diuji (membutuhkan deployment Netlify + Cloudinary)
 - Koneksi Neon dari runtime Netlify: BELUM DIUJI.
