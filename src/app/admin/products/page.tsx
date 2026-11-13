@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { products as seedProducts, getCategories } from "@/lib/mock-data";
+import { products as seedProducts } from "@/lib/mock-data";
 import type { Product } from "@/lib/types";
 import { formatRupiah } from "@/lib/format";
 
@@ -17,6 +17,7 @@ export default function AdminProductsPage() {
       router.push("/admin/login");
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems([...seedProducts]);
     setReady(true);
   }, [router]);

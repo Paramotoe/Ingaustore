@@ -12,16 +12,17 @@ export async function POST(req: Request) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
 
-  let body: any;
+  let body: unknown;
   try { body = await req.json(); } catch { body = null; }
-  const assetId = String(body?.assetId ?? "");
-  const publicId = String(body?.publicId ?? "");
+  const b = (body ?? {}) as { assetId?: unknown; publicId?: unknown; altText?: unknown; sortOrder?: unknown };
+  const assetId = String(b.assetId ?? "");
+  const publicId = String(b.publicId ?? "");
   if (!assetId || !publicId) {
     return NextResponse.json({ success: false, error: { code: "VALIDATION_ERROR", message: "assetId dan publicId wajib" } }, { status: 400 });
   }
 
   // verify asset from Cloudinary
-  let resource: any;
+  let resource: { asset_id: string; public_id: string; secure_url: string; width: number; height: number; bytes: number; format: string };
   try {
     resource = await cloudinary.api.resource(publicId);
   } catch {
@@ -65,8 +66,8 @@ export async function POST(req: Request) {
       height,
       bytes,
       format,
-      altText: body?.altText ?? null,
-      sortOrder: body?.sortOrder ?? 1,
+      altText: b.altText ? String(b.altText) : null,
+      sortOrder: Number(b.sortOrder ?? 1),
     },
   }, { status: 201 });
 }

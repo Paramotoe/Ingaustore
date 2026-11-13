@@ -63,7 +63,7 @@ export async function GET(req: Request) {
   const page = Math.max(1, Number(url.searchParams.get("page") ?? "1") || 1);
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "12") || 12));
 
-  const where: any = {};
+  const where: Record<string, unknown> = {};
   if (active === "true") where.isActive = true;
   else if (active === "false") where.isActive = false;
   if (category) where.category = { slug: category };

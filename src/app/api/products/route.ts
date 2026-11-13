@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const page = Math.max(1, Number(url.searchParams.get("page") ?? "1") || 1);
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "12") || 12));
 
-  const where: any = { isActive: true };
+  const where: Record<string, unknown> = { isActive: true };
   if (featured === "true") where.isFeatured = true;
   if (category) where.category = { slug: category };
   if (search.trim()) {

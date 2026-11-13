@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "./ThemeProvider";
+import { useTheme, type Theme } from "./ThemeProvider";
 
 const swatches: Record<string, string> = {
   "aurora-light": "linear-gradient(135deg,#5B3FD6,#0E7490)",
@@ -16,7 +16,7 @@ export default function ThemeSwitcher() {
       <select
         aria-label="Pilih tema"
         value={theme}
-        onChange={(e) => setTheme(e.target.value as any)}
+        onChange={(e) => setTheme(e.target.value as Theme)}
         className="h-10 rounded-xl border border-border bg-surface px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-focus-ring"
       >
         {themes.map((t) => (

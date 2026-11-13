@@ -16,6 +16,7 @@ export default function AdminCategoriesPage() {
       router.push("/admin/login");
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems([...getCategories()]);
     setReady(true);
   }, [router]);

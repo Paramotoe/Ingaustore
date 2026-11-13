@@ -53,13 +53,13 @@ export async function getProducts(params: {
   active?: "all" | "true" | "false";
 }): Promise<Paginated<Product>> {
   if (!useDb) {
-    const r = mock.getProducts(params as any);
+    const r = mock.getProducts(params as Parameters<typeof mock.getProducts>[0]);
     return { data: r.data, pagination: r.pagination };
   }
   const {
     search = "", category = "", featured, sort = "newest", page = 1, limit = 12, active = "true",
   } = params;
-  const where: any = {};
+  const where: Record<string, unknown> = {};
   if (active === "true") where.isActive = true;
   else if (active === "false") where.isActive = false;
   if (featured) where.isFeatured = true;

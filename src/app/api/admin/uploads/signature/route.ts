@@ -14,10 +14,11 @@ export async function POST(req: Request) {
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
 
-  let body: any;
+  let body: unknown;
   try { body = await req.json(); } catch { body = null; }
-  const size = Number(body?.size ?? 0);
-  const contentType = String(body?.contentType ?? "");
+  const b = (body ?? {}) as { size?: unknown; contentType?: unknown };
+  const size = Number(b.size ?? 0);
+  const contentType = String(b.contentType ?? "");
   if (!ALLOWED.includes(contentType)) {
     return NextResponse.json({ success: false, error: { code: "UPLOAD_ERROR", message: "Format tidak didukung" } }, { status: 400 });
   }

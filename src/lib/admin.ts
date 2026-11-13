@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 
 export async function requireAdmin() {
   const session = await auth();
-  const userId = (session?.user as any)?.id;
+  const userId = (session?.user as { id?: string } | undefined)?.id;
   const email = session?.user?.email;
   if (!userId || !email) return null;
 
