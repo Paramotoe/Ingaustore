@@ -12,14 +12,25 @@
 - Mock network tidak digunakan; mode database menampilkan error terkontrol jika layanan belum dikonfigurasi.
 - Lint & build lulus setelah integrasi.
 
-### Belum Diuji (membutuhkan deployment + DB nyata)
+### Lulus Lokal (runtime, DB nyata via Neon)
+- Login admin (Auth.js Credentials): PASS (302 redirect, session cookie).
+- Penolakan akses tanpa session (GET /api/admin/products, /api/admin/categories): PASS (401).
+- Create category: PASS (201).
+- Create product (inactive, 0 foto): PASS (201).
+- Produk nonaktif tidak tampil di detail publik: PASS (404).
+- Aktivasi produk tanpa foto ditolak: PASS (400) [setelah fix PATCH].
+- Update produk (nama, harga): PASS (200, slug tetap).
+- Delete produk: PASS (200, lalu 404).
+- Delete category: PASS (200).
+- Duplikat kategori: PASS (409).
+- Katalog publik dari DB nyata: PASS (0 produk → empty state, bukan demo).
+- Data test dibersihkan: DB kembali 0 produk, 0 kategori, 1 admin, 0 cleanup jobs.
+
+### Belum Diuji (membutuhkan deployment Netlify + Cloudinary)
 - Koneksi Neon dari runtime Netlify: BELUM DIUJI.
-- Login/logout & penolakan akses tanpa session (deployment): BELUM DIUJI.
-- Signed upload & verifikasi aset Cloudinary: BELUM DIUJI.
-- CRUD kategori/produk end-to-end: BELUM DIUJI.
-- Katalog & detail dari DB nyata: BELUM DIUJI.
+- Signed upload & verifikasi aset Cloudinary: BELUM DIUJI (env Cloudinary belum diisi).
 - Pengurutan/penggantian/penghapusan foto: BELUM DIUJI.
-- Pembaruan cache: BELUM DIUJI.
+- Pembaruan cache pada deployment: BELUM DIUJI.
 - Cleanup orphan & retry penghapusan: BELUM DIUJI.
 - Responsive & 4 tema pada deployment: BELUM DIUJI.
 
