@@ -92,7 +92,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   const newIsActive = d.isActive ?? existing.isActive;
   const newImages = d.images;
-  if (newIsActive && newImages && newImages.length === 0) {
+  const effectiveImageCount = newImages ? newImages.length : existing.images.length;
+  if (newIsActive && effectiveImageCount === 0) {
     return NextResponse.json({ success: false, error: { code: "VALIDATION_ERROR", message: "Produk aktif wajib memiliki minimal 1 foto" } }, { status: 400 });
   }
   if (newImages && newImages.length > 6) {
