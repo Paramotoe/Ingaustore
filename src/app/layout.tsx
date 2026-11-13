@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import SessionProvider from "@/components/SessionProvider";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -51,11 +52,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <Suspense fallback={<div className="h-16" />}>
-            <SiteHeader />
-          </Suspense>
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
+          <SessionProvider>
+            <Suspense fallback={<div className="h-16" />}>
+              <SiteHeader />
+            </Suspense>
+            <main className="flex-1">{children}</main>
+            <SiteFooter />
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

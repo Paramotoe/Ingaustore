@@ -5,6 +5,7 @@ export type Category = {
   description?: string | null;
   thumbnail?: string | null;
   sortOrder?: number;
+  productCount?: number;
 };
 
 export type ProductImage = {

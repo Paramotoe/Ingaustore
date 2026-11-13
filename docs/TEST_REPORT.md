@@ -4,12 +4,17 @@
 
 ### Lulus Lokal (build & lint)
 - `next build`: PASS (0 error, 18 halaman).
-- `eslint`: PASS (0 error, 0 warning).
+- `eslint`: PASS (0 problems).
 - TypeScript: PASS.
+
+### Sudah Diimplementasikan (kode) — belum diuji runtime
+- Admin UI terhubung ke API sebenarnya (login/logout, CRUD produk & kategori, upload/verify/reorder/hapus foto, toggle aktif).
+- Mock network tidak digunakan; mode database menampilkan error terkontrol jika layanan belum dikonfigurasi.
+- Lint & build lulus setelah integrasi.
 
 ### Belum Diuji (membutuhkan deployment + DB nyata)
 - Koneksi Neon dari runtime Netlify: BELUM DIUJI.
-- Login/logout & penolakan akses tanpa session: BELUM DIUJI (deployment).
+- Login/logout & penolakan akses tanpa session (deployment): BELUM DIUJI.
 - Signed upload & verifikasi aset Cloudinary: BELUM DIUJI.
 - CRUD kategori/produk end-to-end: BELUM DIUJI.
 - Katalog & detail dari DB nyata: BELUM DIUJI.
@@ -25,6 +30,8 @@
 4. Prisma 7: `url` di schema tidak didukung → pindah ke `prisma.config.ts`, adapter di client.
 5. Lint: `any` types, setState-in-effect, unused imports → diperbaiki.
 6. Mock fallback diam-diam → mode eksplisit `DATA_MODE`.
+7. Admin UI simulasi → terhubung ke API sebenarnya.
+8. Seed admin menimpa password → dibuat idempotent.
 
 ### Bukti Nonrahasia
 - Build output: 18 halaman, 0 error (lihat log build).
