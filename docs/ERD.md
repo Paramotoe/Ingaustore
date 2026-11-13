@@ -55,8 +55,14 @@ product (1) ----< file_cleanup_job (N)   [opsional, untuk retry hapus file]
 |---|---|---|---|
 | id | UUID | PK | Primary key |
 | product_id | UUID | FK product(id) ON DELETE CASCADE, NOT NULL | Relasi ke produk |
-| url | TEXT | NOT NULL | URL foto hasil (WebP) |
-| storage_key | TEXT | NOT NULL | Key di Vercel Blob |
+| provider | VARCHAR(20) | NOT NULL DEFAULT 'cloudinary' | Provider storage (cloudinary) |
+| asset_id | VARCHAR(100) | NOT NULL | Cloudinary asset_id |
+| public_id | VARCHAR(255) | NOT NULL | Cloudinary public_id |
+| secure_url | TEXT | NOT NULL | URL HTTPS Cloudinary |
+| width | INTEGER | NOT NULL | Lebar (px) |
+| height | INTEGER | NOT NULL | Tinggi (px) |
+| bytes | INTEGER | NOT NULL | Ukuran file (bytes) |
+| format | VARCHAR(20) | NOT NULL | Format (jpg/png/webp) |
 | alt_text | VARCHAR(255) | NULLABLE | Teks alternatif |
 | sort_order | INTEGER | NOT NULL DEFAULT 0 | Urutan foto di slider |
 | created_at | TIMESTAMPTZ | NOT NULL DEFAULT now() | |

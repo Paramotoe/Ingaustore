@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Admin {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin")
+}
+
+model Category {
+  id            String    @id @default(uuid())
+  name          String    @unique @db.VarChar(50)
+  slug          String    @unique @db.VarChar(120)
+  description   String?   @db.VarChar(160)
+  thumbnail     String?   @db.Text
+  sortOrder     Int       @default(0) @map("sort_order")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  products      Product[]
+
+  @@map("category")
+}
+
+model Product {
+  id          String         @id @default(uuid())
+  name        String         @db.VarChar(255)
+  code        String?        @unique @db.VarChar(50)
+  slug        String         @unique @db.VarChar(255)
+  description String?        @db.Text
+  priceIdr    BigInt         @map("price_idr")
+  isFeatured  Boolean        @default(false) @map("is_featured")
+  isActive    Boolean        @default(true) @map("is_active")
+  categoryId  String         @map("category_id")
+  category    Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images      ProductImage[]
+  links       ProductLink[]
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([createdAt])
+  @@map("product")
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider  String   @default("cloudinary") @db.VarChar(20)
+  assetId   String   @map("asset_id") @db.VarChar(100)
+  publicId  String   @map("public_id") @db.VarChar(255)
+  secureUrl String   @map("secure_url") @db.Text
+  width     Int
+  height    Int
+  bytes     Int
+  format    String   @db.VarChar(20)
+  altText   String?  @map("alt_text") @db.VarChar(255)
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId, sortOrder])
+  @@map("product_image")
+}
+
+model ProductLink {
+  id              String   @id @default(uuid())
+  productId       String   @map("product_id")
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  marketplaceName String   @map("marketplace_name") @db.VarChar(50)
+  url             String   @db.Text
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@map("product_link")
+}
+
+model FileCleanupJob {
+  id        String   @id @default(uuid())
+  provider  String   @db.VarChar(20)
+  assetId   String   @map("asset_id") @db.VarChar(100)
+  publicId  String   @map("public_id") @db.VarChar(255)
+  status    String   @default("pending") @db.VarChar(20)
+  attempts  Int      @default(0)
+  lastError String?  @map("last_error") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("file_cleanup_job")
+}

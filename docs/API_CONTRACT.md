@@ -81,7 +81,7 @@ Response 200:
       "slug": "tas-kulit-premium",
       "priceIdr": 250000,
       "category": { "id": "uuid", "name": "Tas", "slug": "tas" },
-      "thumbnail": "https://blob.vercel-storage.com/tas-1.webp",
+      "thumbnail": "https://res.cloudinary.com/.../tas-1.webp",
       "isFeatured": true,
       "isActive": true
     }
@@ -106,7 +106,19 @@ Response 200:
     "priceIdr": 250000,
     "category": { "id": "uuid", "name": "Tas", "slug": "tas" },
     "images": [
-      { "id": "uuid", "url": "https://...", "altText": "Tampilan depan", "sortOrder": 1 }
+      {
+        "id": "uuid",
+        "provider": "cloudinary",
+        "assetId": "xxx",
+        "publicId": "ingaustore/products/uuid",
+        "secureUrl": "https://res.cloudinary.com/.../uuid.webp",
+        "width": 1600,
+        "height": 1200,
+        "bytes": 480000,
+        "format": "webp",
+        "altText": "Tampilan depan",
+        "sortOrder": 1
+      }
     ],
     "links": [
       { "id": "uuid", "marketplaceName": "shopee", "url": "https://shopee.co.id/produk" }
@@ -170,7 +182,18 @@ Admin. Body:
   "isFeatured": false,
   "isActive": true,
   "images": [
-    { "url": "https://blob.vercel-storage.com/tas-1.webp", "storageKey": "products/uuid.webp", "altText": "Tampilan depan tas", "sortOrder": 1 }
+    {
+      "provider": "cloudinary",
+      "assetId": "xxx",
+      "publicId": "ingaustore/products/uuid",
+      "secureUrl": "https://res.cloudinary.com/.../uuid.webp",
+      "width": 1600,
+      "height": 1200,
+      "bytes": 480000,
+      "format": "webp",
+      "altText": "Tampilan depan tas",
+      "sortOrder": 1
+    }
   ],
   "links": [
     { "marketplaceName": "shopee", "url": "https://shopee.co.id/produk" }
@@ -184,7 +207,7 @@ Validasi:
 - `categoryId`: wajib, UUID valid, kategori harus ada.
 - `description`: opsional, max 5000 karakter.
 - `isFeatured`, `isActive`: boolean, default false/true.
-- `images`: array. Produk aktif wajib minimal 1, maksimal 6. Tiap item: `url` wajib URL valid (host Vercel Blob), `storageKey` wajib, `altText` opsional max 255, `sortOrder` integer >= 0 (default index+1).
+- `images`: array. Produk aktif wajib minimal 1, maksimal 6. Tiap item: provider=cloudinary, assetId/publicId/secureUrl/width/height/bytes/format wajib; altText opsional max 255; sortOrder integer >= 0 (default index+1).
 - `links`: array (boleh kosong). Tiap item: `marketplaceName` wajib, 1–50, lowercase slug; `url` wajib URL valid.
 - `slug`: digenerate server dari `name` (slugify lowercase + hyphen). Jika bentrok, tambahkan suffix `-2`, `-3`. Tidak diedit user.
 
@@ -194,7 +217,7 @@ Response 201:
 ```
 
 ### PATCH /api/admin/products/:id
-Admin. Body partial (semua field opsional, minimal satu field). Jika `images`/`links` dikirim, **mengganti seluruh set** (replace). Foto lama dijadwalkan hapus (file_cleanup_job) setelah berhasil.
+Admin. Body partial (semua field opsional, minimal satu field). Jika `images`/`links` dikirim, **mengganti seluruh set** (replace). Aset lama dijadwalkan hapus via file_cleanup_job.
 Validasi sama seperti POST untuk field yang dikirim.
 Response 200:
 ```json
@@ -203,7 +226,7 @@ Response 200:
 404 jika produk tidak ada.
 
 ### DELETE /api/admin/products/:id
-Admin. Hard delete record + relasi (DB). File storage dijadwalkan via file_cleanup_job (status pending) sebelum hapus relasi; retry jika gagal. Kategori tidak dihapus.
+Admin. Hard delete record + relasi (DB). Aset storage dijadwalkan via file_cleanup_job (status pending) sebelum hapus relasi; retry jika gagal. Kategori tidak dihapus.
 Tampilkan dialog konfirmasi (nama produk) di UI.
 Response 200: `{ "success": true, "message": "Produk berhasil dihapus" }`.
 
@@ -231,7 +254,7 @@ Validasi: name wajib 1–50, unik; slug auto dari name (unik, suffix jika bentro
 Response 201.
 
 ### PATCH /api/admin/categories/:id
-Admin. Partial. Jika thumbnail diganti, file lama dijadwalkan hapus.
+Admin. Partial. Jika thumbnail diganti, aset lama dijadwalkan hapus.
 Response 200.
 
 ### DELETE /api/admin/categories/:id
@@ -243,9 +266,11 @@ Admin. Body: `{ "items": [{ "id": "uuid", "sortOrder": 1 }] }`.
 
 ---
 
-## 5. Admin Upload (Client Direct + Server Processing)
+## 5. Admin Upload (Cloudinary Signed Upload)
 
-### POST /api/admin/uploads/token
+Provider: Cloudinary (Image and Video API). Upload langsung dari browser ke Cloudinary via signed upload.
+
+### POST /api/admin/uploads/signature
 Admin. Body:
 ```json
 { "filename": "tas.jpg", "contentType": "image/jpeg", "size": 1234567 }
@@ -253,43 +278,73 @@ Admin. Body:
 Validasi policy: size <= 5MB, contentType in {image/jpeg, image/png, image/webp}.
 Response 200:
 ```json
-{ "success": true, "data": { "clientToken": "...", "pathname": "uploads/tmp/uuid.jpg" } }
+{
+  "success": true,
+  "data": {
+    "cloudName": "xxx",
+    "apiKey": "xxx",
+    "timestamp": 1700000000,
+    "signature": "xxx",
+    "folder": "ingaustore/products",
+    "publicId": "uuid",
+    "eager": "w_1600,c_limit,q_auto,f_webp"
+  }
+}
 ```
-Token untuk client upload langsung ke Vercel Blob.
+Signature dibuat server menggunakan `CLOUDINARY_API_SECRET` (hanya server).
 
-### Client upload langsung ke Vercel Blob
-Client menggunakan token → upload original (max 5MB) → dapat URL temporary.
+### Client upload langsung ke Cloudinary
+Client menggunakan signature → upload original (max 5MB) → Cloudinary memproses (WebP, max 1600px sisi terpanjang, no upscale) →
+mengembalikan metadata (asset_id, public_id, secure_url, width, height, bytes, format).
 
-### POST /api/admin/uploads/process
+### POST /api/admin/uploads/verify
 Admin. Body:
 ```json
-{ "url": "https://blob.vercel-storage.com/uploads/tmp/uuid.jpg", "storageKey": "uploads/tmp/uuid.jpg" }
+{ "assetId": "xxx", "publicId": "ingaustore/products/uuid", "secureUrl": "https://res.cloudinary.com/.../uuid.webp" }
 ```
-Server: fetch original → validasi dimensi (min 400×400, max 6000px/sisi) & konten (decode) →
-re-encode WebP (sisi terpanjang max 1600px, no upscale, target ~500KB) → upload hasil → hapus original →
-kembalikan URL hasil.
+Server: verifikasi aset dari Cloudinary (identitas aset, format, ukuran file, dimensi, kepemilikan) →
+validasi policy (min 400×400, max 6000px/sisi, max 5MB, format jpeg/png/webp) →
+kembalikan metadata siap simpan. Jika gagal validasi, hapus aset di Cloudinary.
 Response 201:
 ```json
-{ "success": true, "message": "Foto berhasil diproses", "data": { "url": "https://blob.vercel-storage.com/products/uuid.webp", "storageKey": "products/uuid.webp", "width": 1600, "height": 1200 } }
+{
+  "success": true,
+  "message": "Foto berhasil diverifikasi",
+  "data": {
+    "provider": "cloudinary",
+    "assetId": "xxx",
+    "publicId": "ingaustore/products/uuid",
+    "secureUrl": "https://res.cloudinary.com/.../uuid.webp",
+    "width": 1600,
+    "height": 1200,
+    "bytes": 480000,
+    "format": "webp",
+    "altText": null,
+    "sortOrder": 1
+  }
+}
 ```
-400 `UPLOAD_ERROR` jika validasi gagal; foto tidak ditautkan ke produk.
 
 ### Alur upload & penghapusan foto
-1. Admin pilih file → request token → client upload original langsung ke Blob.
-2. POST `/api/admin/uploads/process` → server validasi + proses → URL hasil.
-3. URL hasil masuk ke `images[]` (dengan storageKey) saat create/update produk.
-4. Urutan foto diatur via `sortOrder` (admin reorder).
-5. Foto pertama (sortOrder terkecil) = thumbnail.
-6. Hapus foto dari produk: PATCH produk dengan `images` tanpa item (replace). File lama dijadwalkan hapus via file_cleanup_job.
-7. Edit produk dibatalkan → foto lama tetap ada; foto baru yang tidak dipakai = orphan, dibersihkan setelah 24 jam.
-8. Hapus produk: cascade DB + file_cleanup_job untuk setiap storageKey.
-9. Hanya hapus file milik aplikasi berdasarkan storage key tercatat; jangan terima URL sembarang.
+1. Admin pilih file → POST `/api/admin/uploads/signature` → client upload langsung ke Cloudinary.
+2. Cloudinary memproses (WebP, max 1600px) → kembalikan metadata.
+3. POST `/api/admin/uploads/verify` → server verifikasi aset + validasi policy.
+4. Metadata masuk ke `images[]` saat create/update produk.
+5. Urutan foto diatur via `sortOrder` (admin reorder).
+6. Foto pertama (sortOrder terkecil) = thumbnail (transformasi Cloudinary).
+7. Hapus foto dari produk: PATCH produk dengan `images` tanpa item (replace). Aset lama dijadwalkan hapus via file_cleanup_job.
+8. Edit produk dibatalkan → foto lama tetap ada; foto baru yang tidak dipakai = orphan, dibersihkan setelah 24 jam.
+9. Hapus produk: cascade DB + file_cleanup_job untuk setiap (provider, assetId/publicId).
+10. Hapus aset hanya via server berdasarkan identifier tersimpan; jangan terima publicId/URL sembarang dari client.
+
+### Varian gambar (Cloudinary transform)
+Gunakan transformasi Cloudinary terbatas: thumbnail (w_200), kartu (w_400), detail (w_1600). Jangan buat transformasi dimensi bebas.
 
 ### Cleanup & retry
-- Tabel `file_cleanup_job` menyimpan storage_key, status (pending/done/failed), attempts, last_error.
+- Tabel `file_cleanup_job` menyimpan provider, asset_id, public_id, status (pending/done/failed), attempts, last_error.
 - Job dibuat sebelum hapus relasi DB (persisten).
-- Worker/cron retry job failed (max 5 attempts, backoff).
-- Kegagalan penghapusan file tidak mengembalikan produk ke katalog.
+- Worker/cron retry job failed (max 5 attempts, backoff). Sediakan cara menjalankan cleanup yang nyata.
+- Kegagalan penghapusan aset tidak mengembalikan produk ke katalog.
 - Orphan cleanup: foto yang diunggah tapi tidak ditautkan dalam 24 jam dijadwalkan hapus.
 
 ---
@@ -308,8 +363,14 @@ Response 201:
 | DB | API |
 |---|---|
 | price_idr | priceIdr |
-| product_image.url | images[].url |
-| product_image.storage_key | images[].storageKey |
+| product_image.provider | images[].provider |
+| product_image.asset_id | images[].assetId |
+| product_image.public_id | images[].publicId |
+| product_image.secure_url | images[].secureUrl |
+| product_image.width | images[].width |
+| product_image.height | images[].height |
+| product_image.bytes | images[].bytes |
+| product_image.format | images[].format |
 | product_image.alt_text | images[].altText |
 | product_image.sort_order | images[].sortOrder |
 | product_image.id | images[].id |
@@ -319,5 +380,5 @@ Response 201:
 | product.updated_at | updatedAt |
 | (foto pertama) | thumbnail |
 | category.description | description |
-| category.thumbnail_key | thumbnail |
+| category.thumbnail | thumbnail |
 | category.sort_order | sortOrder |

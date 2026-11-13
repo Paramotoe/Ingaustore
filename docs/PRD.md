@@ -102,10 +102,12 @@ Pengunjung tidak perlu login. Hanya admin yang login untuk mengelola katalog.
 19. Harga field API: `priceIdr`.
 
 ## 8. Asumsi
-- Neon, Prisma, Vercel Blob, Vercel deployment masih dalam batas paket gratis (verifikasi).
+- Hosting: Netlify Free ($0, 300 credits/bulan, hard limit, penggunaan komersial diizinkan). Upgrade hanya dengan persetujuan.
+- Database: Neon PostgreSQL Free + Prisma ORM. Gunakan pooled connection untuk runtime; migration connection sesuai dokumentasi. Jangan aktifkan Prisma Accelerate/Postgres atau layanan tambahan berbayar.
+- Penyimpanan foto: Cloudinary Free (Image and Video API, bukan Assets DAM). Signed upload, server verify aset, metadata di DB. Jangan gunakan unrestricted unsigned upload.
 - Admin tunggal di-seed via script membaca env (`ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`).
 - Password produksi diberikan terpisah via env; hash disimpan di DB.
-- Foto diunggah langsung ke Vercel Blob; URL hasil disimpan di DB.
+- Upload foto: batas efektif 4.5MB pada Netlify Function (binary base64). Input 5MB → gunakan direct upload atau turunkan batas ke 4MB.
 - Kategori "Semua" adalah filter UI, bukan entitas DB.
 - Koleksi (Tech Essentials, dll.) adalah shortcut filter kategori, bukan entitas baru.
 - Marketplace yang didukung: shopee, tokopedia, whatsapp, lazada, instagram, facebook, website.
