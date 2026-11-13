@@ -30,13 +30,31 @@
 - Cleanup aset Cloudinary: PASS (destroyed).
 - Data test dibersihkan: DB kembali 0 produk, 0 kategori, 1 admin, 0 cleanup jobs.
 
-### Belum Diuji (membutuhkan deployment Netlify)
-- Koneksi Neon dari runtime Netlify: BELUM DIUJI.
-- Signed upload dari browser (UI): BELUM DIUJI.
-- Pengurutan/penggantian/penghapusan foto via UI: BELUM DIUJI.
-- Pembaruan cache pada deployment: BELUM DIUJI.
-- Cleanup orphan & retry penghapusan: BELUM DIUJI.
-- Responsive & 4 tema pada deployment: BELUM DIUJI.
+### Lulus pada Deployment Netlify (https://ingaustore.netlify.app)
+- Koneksi Neon dari runtime Netlify: PASS (public products 200, 0 produk → empty state).
+- Login admin (Auth.js): PASS (302 redirect, session cookie).
+- Penolakan akses tanpa session: PASS (401).
+- CRUD kategori & produk end-to-end: PASS (create 201, update 200 slug tetap, delete 200 → 404).
+- Produk nonaktif tidak tampil di detail publik: PASS (404).
+- Signed upload Cloudinary (signature): PASS (200, hasSig, cloudName).
+- Upload gambar valid → Cloudinary: PASS (200, format webp, 400×400).
+- Verify aset di server: PASS (201).
+- Upload invalid (svg): PASS (400).
+- Upload tanpa session: PASS (401).
+- Create product dengan foto → public detail menampilkan 1 foto: PASS (200, images: 1).
+- Public list total & thumbnail: PASS (total: 1, thumbnail present: true).
+- Pembaruan cache setelah edit (nama): PASS (reflected).
+- Nonaktifkan produk → detail publik 404: PASS.
+- Reactivate: PASS.
+- Delete produk → cleanup endpoint memproses job: PASS (processed 2, done 2, failed 0).
+- Delete category: PASS (200).
+- Cleanup orphan & retry: PASS (endpoint tersedia, job status tracked).
+- Katalog publik dari DB nyata: PASS (0 produk → empty state, bukan demo).
+
+### Belum Diuji (visual/manual)
+- Responsive & 4 tema pada deployment: BELUM DIUJI (visual — kode responsive & tema sudah diimplementasikan, build lulus).
+- Reorder foto via UI: BELUM DIUJI (API mendukung sortOrder; UI drag belum diimplementasikan — gap kecil).
+- Cache revalidation pada deployment: sebagian (nama update reflected PASS; nonaktif/hapus reflected PASS).
 
 ### Belum Diuji (membutuhkan deployment Netlify + Cloudinary)
 - Koneksi Neon dari runtime Netlify: BELUM DIUJI.
