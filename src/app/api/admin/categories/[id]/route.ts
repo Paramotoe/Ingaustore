@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/admin";
+import { requireAdmin, verifyOrigin } from "@/lib/admin";
 import { z } from "zod";
 
 const patchSchema = z.object({
@@ -11,6 +11,7 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await verifyOrigin())) return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Origin tidak valid" } }, { status: 403 });
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
   const { id } = await params;
@@ -44,6 +45,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  if (!(await verifyOrigin())) return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Origin tidak valid" } }, { status: 403 });
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
   const { id } = await params;

@@ -8,6 +8,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +19,7 @@ export default function AdminLoginPage() {
     try {
       const res = await signIn("credentials", { email, password, redirect: false });
       if (res?.error) {
-        setError("Email atau password salah.");
+        setError("Email atau kata sandi tidak sesuai.");
       } else {
         router.push("/admin/products");
         router.refresh();
@@ -51,14 +52,24 @@ export default function AdminLoginPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-foreground">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="mt-1 h-11 w-full rounded-xl border border-border bg-surface-elevated px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-focus-ring"
-            />
+            <div className="relative mt-1">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="h-11 w-full rounded-xl border border-border bg-surface-elevated px-3 pr-16 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-focus-ring"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              >
+                {showPassword ? "Sembunyikan" : "Tampilkan"}
+              </button>
+            </div>
           </div>
           {error && <p className="text-sm text-red-500" role="alert">{error}</p>}
           <button
@@ -66,7 +77,7 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? "Memproses..." : "Masuk"}
+            {loading ? "Memverifikasi…" : "Masuk"}
           </button>
         </form>
       </div>

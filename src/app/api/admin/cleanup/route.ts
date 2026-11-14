@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin";
+import { requireAdmin, verifyOrigin } from "@/lib/admin";
 import { prisma } from "@/lib/prisma";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -17,6 +17,7 @@ export async function GET() {
 }
 
 export async function POST() {
+  if (!(await verifyOrigin())) return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Origin tidak valid" } }, { status: 403 });
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
 

@@ -5,7 +5,7 @@ import MarketplaceLinks from "@/components/MarketplaceLinks";
 import ProductGrid from "@/components/ProductGrid";
 import { getProductBySlug, getRelatedProducts } from "@/lib/data";
 
-export const instant = false;
+
 import { formatRupiah } from "@/lib/format";
 
 export default async function ProductDetailPage({

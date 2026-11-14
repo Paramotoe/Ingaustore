@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin";
+import { requireAdmin, verifyOrigin } from "@/lib/admin";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
@@ -9,6 +9,7 @@ cloudinary.config({
 });
 
 export async function POST(req: Request) {
+  if (!(await verifyOrigin())) return NextResponse.json({ success: false, error: { code: "FORBIDDEN", message: "Origin tidak valid" } }, { status: 403 });
   const admin = await requireAdmin();
   if (!admin) return NextResponse.json({ success: false, error: { code: "UNAUTHORIZED", message: "Admin belum login" } }, { status: 401 });
 

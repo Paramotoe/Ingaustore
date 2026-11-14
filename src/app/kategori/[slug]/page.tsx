@@ -5,7 +5,7 @@ import ProductFilters from "@/components/ProductFilters";
 import EmptyState from "@/components/EmptyState";
 import { getProducts, getCategories, getCategoryBySlug } from "@/lib/data";
 
-export const instant = false;
+
 
 export default async function CategoryPage({
   params,
