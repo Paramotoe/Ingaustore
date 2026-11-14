@@ -6,6 +6,14 @@
 - Foto: Cloudinary Free (Image & Video API, signed upload).
 - Auth: Auth.js v5 (Credentials, bcryptjs, JWT 8 jam).
 
+## Database & Environment (PoC)
+- Database aktif: Neon project `empty-smoke-43231104`, branch `production`, region ap-southeast-1.
+- Migration yang sudah diterapkan: `20260101000000_init` (7 tabel: admin, category, product, product_image, product_link, file_cleanup_job, _prisma_migrations).
+- Environment ini saat ini ditetapkan sebagai **PoC** (belum produksi publik). Katalog kosong (0 produk) — empty state yang baik.
+- `DATA_MODE=database` pada deployment Netlify.
+- Jangan jalankan migration ulang/reset karena penamaan environment. Jika schema berubah, buat migration baru dan `migrate deploy`.
+- Setelah data asli masuk, jangan jalankan cleanup data test secara luas; gunakan identifier spesifik.
+
 ## Environment Variables (nama saja, tanpa nilai)
 ### Build-time & Runtime (Netlify Site settings → Environment variables)
 - `DATA_MODE` = `database` (wajib pada PoC/produksi)

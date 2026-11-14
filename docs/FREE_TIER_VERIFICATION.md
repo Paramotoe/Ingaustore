@@ -33,7 +33,17 @@ Catatan: Cloudinary Free adalah "Image and Video API", bukan trial Assets DAM.
 - **Netlify Database**: TIDAK DIGUNAKAN. Database menggunakan Neon PostgreSQL. Netlify Database hanya alternatif cadangan.
 - **Vercel Blob / Vercel Hosting**: TIDAK DIGUNAKAN. Hosting menggunakan Netlify.
 
-## Temuan Kritis:
+## Perilaku Kuota per Penyedia (verifikasi)
+
+| Penyedia | Perilaku saat kuota habis | Pulih otomatis? |
+|---|---|---|
+| Netlify Free | Semua proyek di-pause sampai siklus billing berikutnya (30 hari). Tidak ada overage. | Ya, pada siklus berikutnya. |
+| Neon Free | Compute suspends (tidak ada overage charge). Database tetap, insert/update yang menambah storage gagal sampai kuota reset atau upgrade. | Ya, pada siklus berikutnya (CU-hours & egress reset bulanan). Storage tidak reset. |
+| Cloudinary Free | Layanan terbatas (transformasi/delivery mungkin dibatasi). Tidak ada hard block dokumentasi yang pasti; monitor credits. | Tergantung jenis limit; verifikasi via dashboard. |
+
+Jangan menyamaratakan: Netlify pause semua proyek; Neon suspend compute (bukan pause site); Cloudinary perilaku spesifik per limit.
+
+## Temuan Kritis::
 
 1. **Vercel Hobby tidak untuk penggunaan komersial.** Fair Use Guidelines Vercel membatasi Hobby untuk penggunaan non-komersial/personal. Ingaustore adalah katalog bisnis (potensi penjualan) → wajib Pro ($20/bulan) atau platform lain. Ini memengaruhi biaya operasional.
 2. **Batas body Vercel Function 4.5MB** (FUNCTION_PAYLOAD_TOO_LARGE). Input foto 5MB tidak bisa dikirim via endpoint server. Solusi: client direct-upload ke Vercel Blob (handleUpload token) — sudah diputuskan di API contract.
