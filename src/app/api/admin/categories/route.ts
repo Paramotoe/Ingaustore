@@ -6,7 +6,7 @@ import { z } from "zod";
 const createSchema = z.object({
   name: z.string().min(1).max(50),
   description: z.string().max(160).optional().nullable(),
-  thumbnail: z.string().url().optional().nullable(),
+  thumbnail: z.string().url().refine((u) => { try { const p = new URL(u); return p.protocol === "https:" || p.protocol === "http:"; } catch { return false; } }, "URL harus http/https").optional().nullable(),
   thumbnailStorageKey: z.string().optional().nullable(),
   sortOrder: z.number().int().optional().default(0),
 });

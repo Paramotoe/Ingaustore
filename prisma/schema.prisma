@@ -99,3 +99,14 @@ model FileCleanupJob {
   @@index([status])
   @@map("file_cleanup_job")
 }
+
+model LoginAttempt {
+  id        String   @id @default(uuid())
+  ip        String   @db.VarChar(64)
+  email     String?  @db.VarChar(255)
+  success   Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ip, createdAt])
+  @@map("login_attempt")
+}

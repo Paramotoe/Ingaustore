@@ -16,9 +16,12 @@ const imageSchema = z.object({
   sortOrder: z.number().int().min(0).default(0),
 });
 
+const httpUrl = z.string().url().refine((u) => {
+  try { const p = new URL(u); return p.protocol === "https:" || p.protocol === "http:"; } catch { return false; }
+}, "URL harus http/https");
 const linkSchema = z.object({
   marketplaceName: z.string().min(1).max(50).regex(/^[a-z0-9-]+$/),
-  url: z.string().url(),
+  url: httpUrl,
 });
 
 const createSchema = z.object({
