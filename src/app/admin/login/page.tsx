@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,16 +10,21 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    document.title = "Masuk ke area internal — Ingaustore";
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const res = await signIn("credentials", { email, password, redirect: false });
+      const res = await signIn("credentials", { email, password, code, redirect: false });
       if (res?.error) {
         setError("Email atau kata sandi tidak sesuai.");
       } else {
@@ -70,6 +77,20 @@ export default function AdminLoginPage() {
                 {showPassword ? "Sembunyikan" : "Tampilkan"}
               </button>
             </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-foreground">Kode verifikasi (jika MFA aktif)</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="6 digit"
+              autoComplete="one-time-code"
+              className="mt-1 h-11 w-full rounded-xl border border-border bg-surface-elevated px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-focus-ring"
+            />
           </div>
           {error && <p className="text-sm text-red-500" role="alert">{error}</p>}
           <button

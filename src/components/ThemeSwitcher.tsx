@@ -1,6 +1,7 @@
 "use client";
 
-import { useTheme, type Theme } from "./ThemeProvider";
+import { useTheme } from "./ThemeProvider";
+import type { Theme } from "./ThemeProvider";
 
 const swatches: Record<string, string> = {
   "aurora-light": "linear-gradient(135deg,#5B3FD6,#0E7490)",
@@ -12,7 +13,12 @@ const swatches: Record<string, string> = {
 export default function ThemeSwitcher() {
   const { theme, setTheme, themes } = useTheme();
   return (
-    <div className="relative">
+    <div className="flex items-center gap-2">
+      <span
+        aria-hidden
+        className="inline-block h-4 w-4 shrink-0 rounded-full border border-border"
+        style={{ background: swatches[theme] }}
+      />
       <select
         aria-label="Pilih tema"
         value={theme}
@@ -25,11 +31,6 @@ export default function ThemeSwitcher() {
           </option>
         ))}
       </select>
-      <span
-        aria-hidden
-        className="pointer-events-none absolute right-12 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border border-border"
-        style={{ background: swatches[theme] }}
-      />
     </div>
   );
 }

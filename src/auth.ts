@@ -16,10 +16,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        code: { label: "Kode verifikasi", type: "text" },
       },
       async authorize(credentials) {
         const email = String(credentials?.email ?? "").toLowerCase().trim();
         const password = String(credentials?.password ?? "");
+        const code = String(credentials?.code ?? "").trim();
 
         // Determine client IP (best-effort, server-side).
         let ip = "unknown";
@@ -46,7 +48,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const admin = await prisma.admin.findUnique({ where: { email } });
-        const ok = !!admin && (await bcrypt.compare(password, admin.passwordHash));
+        const passwordOk = !!admin && (await bcrypt.compare(password, admin.passwordHash));
+
+        // MFA: if admin has totpSecret, require valid TOTP code.
+        let mfaOk = true;
+        if (admin?.totpSecret) {
+          const { verifyTotp } = await import("@/lib/totp");
+          mfaOk = verifyTotp(admin.totpSecret, code);
+        }
+
+        const ok = passwordOk && mfaOk;
 
         await prisma.loginAttempt.create({ data: { ip, email, success: ok } });
 
