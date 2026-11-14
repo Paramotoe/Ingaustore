@@ -13,6 +13,7 @@ export default function AdminProductsPage() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [cleanupMsg, setCleanupMsg] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -127,10 +128,27 @@ export default function AdminProductsPage() {
         </table>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <Link href="/admin/categories" className="text-sm text-primary hover:underline">
           Kelola Kategori →
         </Link>
+        <button
+          onClick={async () => {
+            setCleanupMsg("Memproses...");
+            try {
+              const res = await fetch("/api/admin/cleanup", { method: "POST" });
+              const json = await res.json();
+              if (!res.ok) throw new Error(json?.error?.message ?? "Gagal");
+              setCleanupMsg(`Cleanup: ${json.data.processed} diproses, ${json.data.done} selesai, ${json.data.failed} gagal.`);
+            } catch (e) {
+              setCleanupMsg(e instanceof Error ? e.message : "Gagal cleanup.");
+            }
+          }}
+          className="inline-flex h-9 items-center justify-center rounded-xl border border-border bg-surface px-3 text-xs font-medium text-foreground hover:bg-surface-elevated"
+        >
+          Bersihkan file orphan
+        </button>
+        {cleanupMsg && <span className="text-xs text-muted-foreground">{cleanupMsg}</span>}
       </div>
     </div>
   );

@@ -125,6 +125,16 @@ export default function EditProductPage() {
     setImages((prev) => prev.filter((_, i) => i !== idx).map((img, i) => ({ ...img, sortOrder: i + 1 })));
   };
 
+  const moveImage = (idx: number, dir: number) => {
+    setImages((prev) => {
+      const next = [...prev];
+      const target = idx + dir;
+      if (target < 0 || target >= next.length) return prev;
+      [next[idx], next[target]] = [next[target], next[idx]];
+      return next.map((img, i) => ({ ...img, sortOrder: i + 1 }));
+    });
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -221,6 +231,10 @@ export default function EditProductPage() {
               <div key={img.assetId} className="relative overflow-hidden rounded-xl border border-border bg-surface-elevated">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={img.secureUrl} alt="" className="aspect-square w-full object-cover" />
+                <div className="absolute bottom-1 left-1 flex gap-1">
+                  <button type="button" onClick={() => moveImage(idx, -1)} disabled={idx === 0} aria-label="Pindah ke kiri" className="rounded bg-black/60 px-1.5 py-0.5 text-xs text-white disabled:opacity-40">←</button>
+                  <button type="button" onClick={() => moveImage(idx, 1)} disabled={idx === images.length - 1} aria-label="Pindah ke kanan" className="rounded bg-black/60 px-1.5 py-0.5 text-xs text-white disabled:opacity-40">→</button>
+                </div>
                 <button type="button" onClick={() => removeImage(idx)} className="absolute right-1 top-1 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white">✕</button>
               </div>
             ))}
